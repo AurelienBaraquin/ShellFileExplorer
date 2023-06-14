@@ -52,7 +52,7 @@
     #define WIDTH (int)getmaxx(stdscr)
     #define HEIGHT (int)getmaxy(stdscr)
 
-    #define VERSION "1.1.0"
+    #define VERSION "1.1.1"
     #define AUTHOR "Aurelien_#5270"
 
     #define VERSION_INFO "Version : " VERSION

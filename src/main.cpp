@@ -123,6 +123,30 @@ void cursor_fix(int *cursor, Index min_max)
         *cursor = min_max.y;
 }
 
+const std::vector<std::string> helpText = {
+    "Usage: ./SFE [OPTION]...",
+    "A simple file explorer",
+    "",
+    "Options:",
+    "  -init\t\t\t\tInitialize the config folder in ~/.config/SFE (need to be done once)",
+    "  -d\t\t\t\tOpen the default path",
+    "  -h\t\t\t\tDisplay this help",
+    "  -t\t\t\t\tOpen the program in tty mode\t\t-> not implemented yet",
+    "  -v\t\t\t\tDisplay the version of the program",
+    "  -p\t\t\t\tOpen the program at the path specified after the option\t\t-> not implemented yet",
+    "",
+    "Before using the program, you need to use the -init option to initialize the config folder",
+    "",
+    "Report bugs to <Aurelien_#5270> on Discord"
+};
+
+void printHelp(const std::vector<std::string>& helpText)
+{
+    for (const std::string& line : helpText) {
+        std::cout << line << std::endl;
+    }
+}
+
 int main(int ac, char **av)
 {
     if (ac == 2 && (string)av[1] == "-init")
@@ -132,6 +156,13 @@ int main(int ac, char **av)
         switch (av[i][1]) {
             case 'd':
                 global->path = DEFAULT_PATH;
+                break;
+            case 'h':
+                printHelp(helpText);
+                return 0;
+            case 'v':
+                std::cout << "Version : " << VERSION << std::endl;
+                return 0;
             default:
                 break;
         }
@@ -144,5 +175,5 @@ int main(int ac, char **av)
         cursor_fix(&global->pos, {0, (int)global->files.size() - 1});
         loop(global);
     }
-    return (0);
+    return 0;
 }

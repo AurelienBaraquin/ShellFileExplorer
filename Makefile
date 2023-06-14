@@ -14,7 +14,7 @@ SRC := $(shell find src -name "*.cpp")
 
 OBJ := $(addprefix $(OBJ_DIR)/,$(notdir $(SRC:.cpp=.o)))
 
-TARGET = shellFileExplorer
+TARGET = SFE
 
 .PHONY: all clean fclean re
 
