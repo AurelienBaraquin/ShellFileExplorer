@@ -12,6 +12,7 @@ global_t *create_struct(void);
 void stop(void)
 {
     endwin();
+    saveKeyOnFile("~/.config/SFE/key_settings");
     exit(0);
 }
 
@@ -32,16 +33,58 @@ void change_sort(global_t *global)
         global->sort_type = 0;
 }
 
+void search_loop(global_t *global)
+{
+    static string search = "";
+    int ch = 0;
+    int cursor = 0;
+    int nb_files = 0;
+    vector<string> files;
+    while (ch != MY_KEY_QUIT && ch != MY_KEY_BACK) {
+        files = split(searchInCurrentRep(search, global->path), '\n');
+        ch = getch();
+        if (ch == KEY_BACKSPACE && search.size() > 0)
+            search.pop_back();
+        if (ch >= 32 && ch <= 126)
+            search += ch;
+        if (ch == MY_KEY_UP && cursor > 0)
+            cursor--;
+        if (ch == MY_KEY_DOWN && cursor < nb_files)
+            cursor++;
+        if (ch == MY_KEY_SELECT || ch == MY_KEY_OPEN) {
+            option_loop(global->path / files[cursor], files, global, cursor);
+            break;
+        }
+        cursor_fix(&cursor, {0, nb_files});
+        clear();
+        print_path(global->path, {0, 0});
+        PRINT_GUI_INFO;
+        mvprintw(1, 0, "Search : %s", search.c_str());
+        print_files({0, 2}, cursor, global->path, files);
+        nb_files = (int)files.size() - 1;
+        refresh();
+        REDUCE_LAG;
+    }
+}
+
 void key_manage(int ch, global_t *global)
 {
     if (ch == MY_KEY_QUIT)
         stop();
     if (ch == MY_KEY_SORT_FILES)
         change_sort(global);
-    if (ch == MY_KEY_NEW_FILE)
-        new_file(global);
-    if (ch == MY_KEY_NEW_FOLDER)
-        new_folder(global);
+    if (ch == MY_KEY_NEW_FILE) {
+        switch (get_choice("Select a file type :", {"File", "Directory", "Cancel"})) {
+            case 0:
+                new_file(global, GLOBAL_PATH);
+                break;
+            case 1:
+                new_folder(global, GLOBAL_PATH);
+                break;
+            default:
+                break;
+        }
+    }
     if (ch == MY_KEY_BACK)
         key_back_function(global);
     if (ch == MY_KEY_UP && global->pos > 0)
@@ -49,42 +92,56 @@ void key_manage(int ch, global_t *global)
     if (ch == MY_KEY_DOWN && global->pos < (int)global->files.size() - 1)
         global->pos++;
     if (ch == MY_KEY_SELECT)
-        option_loop(global);
+        option_loop(global->path / global->files[global->pos], global->files, global, global->pos);
     if (ch == MY_KEY_SETTINGS)
         settings_loop(global);
+    if (ch == MY_KEY_SEARCH)
+        search_loop(global);
     for (int i = 0; i < OPTIONS_SIZE; i++)
         if (ch == getKey(OPTIONS_TAB[i].name))
-            OPTIONS_TAB[i].func(global);
+            OPTIONS_TAB[i].func(global, GLOBAL_PATH);
 }
 
 void loop(global_t *global)
 {
     key_manage(getch(), global);
+    get_files(global);
     clear();
-    print_path(global, {0, 0});
-    print_files(global, {0, 2});
+    print_path(global->path, {0, 0});
+    print_files({0, 2}, global->pos, global->path, global->files);
     PRINT_GUI_INFO;
     refresh();
     REDUCE_LAG;
 }
 
-void common_fix(global_t *global)
+void cursor_fix(int *cursor, Index min_max)
 {
-    if (global->pos < 0)
-        global->pos = 0;
-    if (global->pos > (int)global->files.size() - 1)
-        global->pos = (int)global->files.size() - 1;
+    //min = x, max = y
+    if (*cursor < min_max.x)
+        *cursor = min_max.x;
+    if (*cursor > min_max.y)
+        *cursor = min_max.y;
 }
 
 int main(int ac, char **av)
 {
-    (void)ac;
-    (void)av;
+    if (ac == 2 && (string)av[1] == "-init")
+        return (init_config_folder());
+    global_t *global = create_struct();
+    for (int i = 1; i < ac; i++) {
+        switch (av[i][1]) {
+            case 'd':
+                global->path = DEFAULT_PATH;
+            default:
+                break;
+        }
+    }
     init_ncurses();
     endwin();
-    global_t *global = create_struct();
+    if (ac == 2 && (string)av[1] == "-t")
+        global->TTY_MODE = true;
     while (1) {
-        common_fix(global);
+        cursor_fix(&global->pos, {0, (int)global->files.size() - 1});
         loop(global);
     }
     return (0);

@@ -22,17 +22,33 @@ const std::vector<FileColor> FILE_COLORS = {
     {std::filesystem::file_type::socket, YELLOW}
 };
 
-void print_files(global_t *global, struct Index pos)
+void print_vector(std::vector<std::string> vector, struct Index pos, ...)
+{
+    int cursor = -1;
+    va_list ap;
+    va_start(ap, pos);
+    cursor = va_arg(ap, int);
+    va_end(ap);
+    std::vector<std::string>::size_type i = 0;
+    int j = 0;
+    for (; i < vector.size(); i++, j++) {
+        if (cursor == (int)i)
+            attron(A_REVERSE);
+        mvprintw(j + pos.y, pos.x, "%s", vector[i].c_str());
+        attroff(A_REVERSE);
+    }
+}
+
+void print_files(struct Index pos, int cursor, std::filesystem::path path, std::vector<std::string> files)
 {
     std::vector<std::string>::size_type i = 0;
     int j = 0;
-    if (global->pos + pos.y + 1 > HEIGHT)
-        i = global->pos - HEIGHT + pos.y + 1;
-    get_files(global);
-    for (; i < global->files.size(); i++, j++) {
-        if ((int)i == global->pos)
+    if (cursor + pos.y + 1 > HEIGHT)
+        i = cursor - HEIGHT + pos.y + 1;
+    for (; i < files.size(); i++, j++) {
+        if ((int)i == cursor)
             attron(A_REVERSE);
-        const std::filesystem::path filePath = global->path / global->files[i];
+        const std::filesystem::path filePath = path / files[i];
         const std::filesystem::file_status fileStatus = std::filesystem::status(filePath);
         for (const FileColor& fileColor : FILE_COLORS) {
             if (fileStatus.type() == fileColor.fileType) {
@@ -40,7 +56,7 @@ void print_files(global_t *global, struct Index pos)
                 break;
             }
         }
-        mvprintw(j + pos.y, pos.x, "%s", global->files[i].c_str());
+        mvprintw(j + pos.y, pos.x, "%s", files[i].c_str());
         attroff(A_REVERSE);
         for (const FileColor& fileColor : FILE_COLORS) {
             if (fileStatus.type() == fileColor.fileType) {
@@ -51,9 +67,8 @@ void print_files(global_t *global, struct Index pos)
     }
 }
 
-void print_options(global_t *global, struct Index pos, int cursor)
+void print_options(struct Index pos, int cursor)
 {
-    (void)global;
     int i = 0;
     int j = 0;
     if (cursor + pos.y + 1 > HEIGHT)
@@ -66,10 +81,10 @@ void print_options(global_t *global, struct Index pos, int cursor)
     }
 }
 
-void print_path(global_t *global, struct Index pos)
+void print_path(std::filesystem::path path, struct Index pos)
 {
-    const std::filesystem::path Parent = global->path.parent_path();
-    const std::string currentDir = global->path.filename().string();
+    const std::filesystem::path Parent = path.parent_path();
+    const std::string currentDir = path.filename().string();
     attron(COLOR_PAIR(RED));
     mvprintw(pos.y, pos.x, "%s/", Parent.c_str());
     attroff(COLOR_PAIR(RED));

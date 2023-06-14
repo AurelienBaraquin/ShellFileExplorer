@@ -27,6 +27,8 @@ enum sortType {
 };
 
 typedef struct global_s {
+    bool TTY_MODE = false;
+
     std::filesystem::path path;
     std::vector<std::string> files;
     int sort_type = SORT_BY_NAME;
@@ -37,19 +39,21 @@ typedef struct global_s {
     std::filesystem::path copy_path;
 } global_t;
 
+#define GLOBAL_PATH global->path / global->files[global->pos]
+
 struct FileOption {
     std::string name;
-    void (*func)(global_t *global);
+    void (*func)(global_t *global, std::filesystem::path filePath);
 };
 
-void rename_file(global_t *global);
-void delete_file(global_t *global);
-void open_file(global_t *global);
-void copy_file(global_t *global);
-void paste_file(global_t *global);
-void move_file(global_t *global);
-void new_file(global_t *global);
-void new_folder(global_t *global);
+void rename_file(global_t *global, std::filesystem::path filePath);
+void delete_file(global_t *global, std::filesystem::path filePath);
+void open_file(global_t *global, std::filesystem::path filePath);
+void copy_file(global_t *global, std::filesystem::path filePath);
+void paste_file(global_t *global, std::filesystem::path filePath);
+void move_file(global_t *global, std::filesystem::path filePath);
+void new_file(global_t *global, std::filesystem::path filePath);
+void new_folder(global_t *global, std::filesystem::path filePath);
 
 const FileOption OPTIONS_TAB[] = {
     {"Open", open_file},
@@ -75,7 +79,7 @@ const FileOption OPTIONS_TAB[] = {
 #define MY_KEY_PASTE getKey("Paste")
 #define MY_KEY_MOVE getKey("Move")
 #define MY_KEY_NEW_FILE getKey("New File")
-#define MY_KEY_NEW_FOLDER getKey("New Folder")
 #define MY_KEY_SORT_FILES getKey("Sort Files")
+#define MY_KEY_SEARCH getKey("Search")
 
 #endif /* !STRUCT_HPP_ */

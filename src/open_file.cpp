@@ -14,17 +14,16 @@ void processRegFile(const std::string file)
         print_warning("Error: can't open file");
 }
 
-void open_file(global_t *global)
+void open_file(global_t *global, std::filesystem::path filePath)
 {
-    std::filesystem::path path = global->path / global->files[global->pos];
     struct stat fileStat;
-    if (stat(path.c_str(), &fileStat) == 0) {
+    if (stat(filePath.c_str(), &fileStat) == 0) {
         if (S_ISREG(fileStat.st_mode)) {
-            processRegFile(path);
+            processRegFile(filePath);
             return;
         }
         if (S_ISDIR(fileStat.st_mode)) {
-            global->path = path;
+            global->path = filePath;
             global->pos_stack.push_back(global->pos);
             //compare if the last element of the stack is the same as the current path
             if (global->file_stack.size() > 0 && global->file_stack.back().path == global->path) {

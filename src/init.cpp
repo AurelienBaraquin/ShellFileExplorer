@@ -34,13 +34,14 @@ void init_ncurses(void)
 
 global_t *create_struct(void)
 {
+    setDefaultKeys();
+    setKeyFromFile("~/.config/SFE/key_settings");
     global_t *global = new global_t;
-    global->path = DEFAULT_PATH;
+    global->path = executeCommand("pwd").substr(0, executeCommand("pwd").size() - 1);
     get_files(global);
     global->pos = 0;
     global->pos_stack.push_back(0);
     global->file_stack.push_back({(string)DEFAULT_PATH, 0});
     global->copy_path = "";
-    setDefaultKeys();
     return global;
 }

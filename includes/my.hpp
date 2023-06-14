@@ -49,10 +49,10 @@
 
     #define DEFAULT_PATH (std::filesystem::path("/home") / std::string(getlogin()))
 
-    #define WIDTH getmaxx(stdscr)
-    #define HEIGHT getmaxy(stdscr)
+    #define WIDTH (int)getmaxx(stdscr)
+    #define HEIGHT (int)getmaxy(stdscr)
 
-    #define VERSION "1.0.0"
+    #define VERSION "1.1.0"
     #define AUTHOR "Aurelien_#5270"
 
     #define VERSION_INFO "Version : " VERSION
@@ -63,3 +63,18 @@
     #define REDUCE_LAG std::this_thread::sleep_for(std::chrono::milliseconds(60))
 
 #endif /* !INCLUDE_HPP_ */
+
+//TODO : checkpoint path use number key to go to a fixed checkpoint
+//TODO : add a way to cut files
+//TODO : do TTY mode (with emacs or nano to text edit...) using -t flag 
+
+//TODO : config folder to save settings, checkpoint and cutted files
+/*
+ALL IN CONFIG FOLDER :
+    - key_settings // DONE
+    - checkpoint
+    - cutted files
+
+
+Use -init flag to create config folder // DONE
+*/
