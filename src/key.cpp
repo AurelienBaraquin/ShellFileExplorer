@@ -25,6 +25,7 @@ std::unordered_map<string, int> keyMappings = {
     {"Settings", 'S'},
     {"Sort Files", 'T'},
     {"Search", 'K'},
+    {"CopyPath", 'P'},
 };
 
 int getKey(const string& action)

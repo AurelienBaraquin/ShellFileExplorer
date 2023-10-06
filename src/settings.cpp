@@ -25,9 +25,8 @@ int key_settings_manage(int *cursor, int ch)
     return 0;
 }
 
-void settings_loop(global_t *global)
+void settings_loop(void)
 {
-    (void)global;
     static int cursor = 0;
     while (1) {
         if (key_settings_manage(&cursor, getch()))
@@ -35,7 +34,8 @@ void settings_loop(global_t *global)
         clear();
         print_settings({1, 1}, cursor);
         print_text({WIDTH / 2, 1}, "Press Shift + [d] to\nreset keys to default");
+        PRINT_GUI_INFO;
         refresh();
-        REDUCE_LAG;
+        
     }
 }

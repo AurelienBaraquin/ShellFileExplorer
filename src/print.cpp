@@ -81,32 +81,68 @@ void print_options(struct Index pos, int cursor)
     }
 }
 
-void print_path(std::filesystem::path path, struct Index pos)
+int print_path(std::filesystem::path path, struct Index pos, int maxWidth)
 {
     const std::filesystem::path Parent = path.parent_path();
     const std::string currentDir = path.filename().string();
     attron(COLOR_PAIR(RED));
-    mvprintw(pos.y, pos.x, "%s/", Parent.c_str());
+    if ((int)currentDir.size() + 4 > maxWidth) {
+        mvprintw(pos.y, pos.x, ".../.");
+        attroff(COLOR_PAIR(RED));
+        return 5;
+    }
+    if ((int)path.string().size() > maxWidth)
+        mvprintw(pos.y, pos.x, ".../");
+    else
+        mvprintw(pos.y, pos.x, "%s/", Parent.c_str());
     attroff(COLOR_PAIR(RED));
     attron(COLOR_PAIR(YELLOW));
-    mvprintw(pos.y, pos.x + Parent.string().size() + 1, "%s", currentDir.c_str());
+    if ((int)path.string().size() > maxWidth)
+        mvprintw(pos.y, pos.x + 4, "%s", currentDir.c_str());
+    else
+        mvprintw(pos.y, pos.x + Parent.string().size() + 1, "%s", currentDir.c_str());
     attroff(COLOR_PAIR(YELLOW));
+    if ((int)path.string().size() > maxWidth)
+        return 4 + currentDir.size();
+    return Parent.string().size() + 1 + currentDir.size();
 }
 
-void print_text(struct Index pos, std::string text)
+void print_text(const Index& pos, const std::string& text, int maxWidth)
 {
-    std::vector<std::string> lines = split(text, '\n');
-    for (std::vector<std::string>::size_type i = 0; i < lines.size(); i++) {
-        mvprintw(pos.y + i, pos.x, "%s", lines[i].c_str());
+    int x = pos.x;
+    int y = pos.y;
+    for (char c : text) {
+        if (c == '\n') {
+            x = pos.x;
+            y++;
+        } else {
+            mvprintw(y, x, "%c", c);
+            x++;
+            if (x >= pos.x + maxWidth) {
+                x = pos.x;
+                y++;
+            }
+        }
     }
 }
 
-void print_colored_text(struct Index pos, std::string text, int color)
+void print_colored_text(const Index& pos, const std::string& text, int color, int maxWidth)
 {
-    std::vector<std::string> lines = split(text, '\n');
+    int x = pos.x;
+    int y = pos.y;
     attron(COLOR_PAIR(color));
-    for (std::vector<std::string>::size_type i = 0; i < lines.size(); i++) {
-        mvprintw(pos.y + i, pos.x, "%s", lines[i].c_str());
+    for (char c : text) {
+        if (c == '\n') {
+            x = pos.x;
+            y++;
+        } else {
+            mvprintw(y, x, "%c", c);
+            x++;
+            if (x >= pos.x + maxWidth) {
+                x = pos.x;
+                y++;
+            }
+        }
     }
     attroff(COLOR_PAIR(color));
 }

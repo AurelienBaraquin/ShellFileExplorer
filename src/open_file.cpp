@@ -10,8 +10,10 @@
 void processRegFile(const std::string file)
 {
     std::string command = "xdg-open " + file;
-    if (system(command.c_str()) == -1)
+    if (system(command.c_str()) == -1) {
         print_warning("Error: can't open file");
+        return;
+    }
 }
 
 void open_file(global_t *global, std::filesystem::path filePath)
@@ -32,6 +34,7 @@ void open_file(global_t *global, std::filesystem::path filePath)
             } else {
                 global->pos = 0;
             }
+            refresh_directory(global->path);
             return;
         }
     }

@@ -35,8 +35,7 @@ void option_loop(std::filesystem::path path, std::vector<std::string> files, glo
         print_files({0, 2}, cursorFile, parentPath, files);
         print_colored_text({get_max_str_size_from_vector(files) + 3, 1}, currentFile.string(), GREEN);
         print_options({get_max_str_size_from_vector(files) + 3, 3}, cursor);
-        PRINT_GUI_INFO;
         refresh();
-        REDUCE_LAG;
+        
     }
 }

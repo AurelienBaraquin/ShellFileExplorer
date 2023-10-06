@@ -25,7 +25,7 @@ std::string get_input(const std::string& ask, const std::string& default_value)
         mvprintw(y / 2, (x / 2) - (ask.size() / 2), "%s", ask.c_str());
         mvprintw(y / 2 + 1, (x / 2) - (input.size() / 2), "%s", input.c_str());
         refresh();
-        REDUCE_LAG;
+        
     }
     return input;
 }
@@ -55,7 +55,7 @@ int get_choice(const std::string& ask, const std::vector<std::string>& choices)
             attroff(A_REVERSE);
         }
         refresh();
-        REDUCE_LAG;
+        
     }
     return choice;
 }

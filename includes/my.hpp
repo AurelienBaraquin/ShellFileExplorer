@@ -30,6 +30,8 @@
     #include <thread>
     #include <stack>
     #include <ncurses.h>
+    #include <sys/wait.h>
+    #include <unordered_map>
 
     #include "struct.hpp"
     #include "prototype.hpp"
@@ -47,6 +49,28 @@
         WHITE
     };
 
+    //* POPUP
+    void FullScreenPopup(const std::string& message, bool clear_ = false, color messageColor = WHITE, color waitKeyColor = WHITE);
+    void FullScreenPopupTimed(const std::string& message, bool clear_ = false, const std::chrono::duration<double> duration = std::chrono::seconds(2), color messageColor = WHITE, color waitKeyColor = WHITE);
+    void Popup(const std::string& message, Index pos, bool clear_ = false, color messageColor = WHITE, color waitKeyColor = WHITE);
+    void PopupTimed(const std::string& message, Index pos, bool clear_ = false, const std::chrono::duration<double> duration = std::chrono::seconds(2), color messageColor = WHITE);
+    void addPopupNoDelayTimed(const std::string& message, Index pos, bool clear_ = false, const std::chrono::duration<double>& duration = std::chrono::seconds(2), color messageColor = WHITE);
+    void refreshPopupNoDelayTimed();
+    void clearPopupNoDelayTimed();
+    void addNotifPopup(const std::string& message, color color = WHITE);
+    void addNotifPopupVector(const std::vector<std::string>& messages, const std::vector<color>& colors = {WHITE});
+
+    //* DRAW
+
+    enum class LineType {
+        HORIZONTAL,
+        VERTICAL
+    };
+
+    void drawLine(Index pos, LineType lineType, int length, char charLine = '*', color colorPair = color::WHITE);
+
+    #define refresh() refreshPopupNoDelayTimed();refresh();REDUCE_LAG
+
     #define DEFAULT_PATH (std::filesystem::path("/home") / std::string(getlogin()))
 
     #define WIDTH (int)getmaxx(stdscr)
@@ -60,7 +84,7 @@
 
     #define PRINT_GUI_INFO print_text({WIDTH - 30, HEIGHT - 3}, VERSION_INFO "\n" AUTHOR_INFO "\nShift + [s] to open Settings")
 
-    #define REDUCE_LAG std::this_thread::sleep_for(std::chrono::milliseconds(60))
+    #define REDUCE_LAG std::this_thread::sleep_for(std::chrono::milliseconds(100))
 
 #endif /* !INCLUDE_HPP_ */
 
